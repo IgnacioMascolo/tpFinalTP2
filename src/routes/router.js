@@ -6,7 +6,6 @@ import authRoutes from "./authRoutes.js";
 import itemsRoutes from "./itemsRoutes.js";
 import pedidosRoutes from "./pedidosRoutes.js";
 import pedidosGrandesRoutes from "./pedidosGrandesRoutes.js";
-import enviosRoutes from "./enviosRoutes.js";
 
 const router = Router();
 
@@ -17,6 +16,5 @@ router.use("/auth", authRoutes);
 router.use("/items", itemsRoutes);
 router.use("/pedidos", pedidosRoutes);
 router.use("/pedidos-grandes", pedidosGrandesRoutes);
-router.use("/envios", enviosRoutes);
 
 export default router;
