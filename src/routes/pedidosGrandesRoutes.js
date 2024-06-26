@@ -8,10 +8,10 @@ pedidosGrandesRoutes.get("/", pedidosGrandesController.getPedidosGrandes);
 
 pedidosGrandesRoutes.get("/:id", pedidosGrandesController.getPedidoGrandeById);
 
-pedidosGrandesRoutes.post("/", pedidosGrandesController.createPedidoGrande);
+// pedidosGrandesRoutes.post("/", pedidosGrandesController.createPedidoGrande);
 
-pedidosGrandesRoutes.put("/:id", pedidosGrandesController.editPedidoGrande);
+// pedidosGrandesRoutes.put("/:id", pedidosGrandesController.editPedidoGrande);
 
-pedidosGrandesRoutes.delete("/:id", pedidosGrandesController.deletePedidoGrande);
+// pedidosGrandesRoutes.delete("/:id", pedidosGrandesController.deletePedidoGrande);
 
 export default pedidosGrandesRoutes;
