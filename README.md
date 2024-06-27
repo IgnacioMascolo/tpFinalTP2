@@ -1,0 +1,5 @@
+- Iniciar Xampp, levantar servidor Apache y MySQL
+- Instalar las dependencias con el comando `npm install`
+- Crear el archivo .env para completar las variables de entorno, siguiendo el modelo del .env.template
+- Levantar la aplicación con el comando `npm run dev`
+- Y ahí el programa ya estaría listo para usar
