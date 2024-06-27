@@ -61,6 +61,34 @@ class ProductsController {
 
       await product.save();
 
+      product.name = name || product.name;
+      product.stock = stock || product.stock;
+      product.price = price || product.price;
+
+      await product.save();
+
+      const items = await Item.findAll({ where: { producto_id: id } });
+
+      for (const item of items) {
+        const previousTotal = item.precioTotal;
+        item.precioTotal = item.cantidad * product.price;
+        await item.save();
+
+        const pedido = await Pedido.findByPk(item.pedido_id);
+        if (pedido) {
+          pedido.precioTotal += item.precioTotal - previousTotal;
+          await pedido.save();
+
+          const pedidoGrande = await PedidoGrande.findByPk(
+            pedido.pedido_grande_id
+          );
+          if (pedidoGrande) {
+            pedidoGrande.precioTotal += item.precioTotal - previousTotal;
+            await pedidoGrande.save();
+          }
+        }
+      }
+
       res.status(200).send({
         success: true,
         message: `Se actualizó el producto ${product.name}`,
