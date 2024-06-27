@@ -9,7 +9,6 @@ Role.init(
       type: DataTypes.ENUM("User", "Admin"),
       allowNull: false,
       defaultValue: "User",
-      // unique: true,
       validate: {
         isIn: {
           args: [["User", "Admin"]],
