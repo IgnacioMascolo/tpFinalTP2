@@ -1,12 +1,14 @@
 import Role from "../models/RolesModels.js";
 
 const roleSeed = async () => {
-  await Role.bulkCreate([
-    {
-      name: "Admin",
-    },
-    { name: "User" },
-  ]);
+  const roles = [{ name: "Admin" }, { name: "User" }];
+
+  for (const role of roles) {
+    await Role.findOrCreate({
+      where: { name: role.name },
+      defaults: role,
+    });
+  }
 };
 
 export default roleSeed;
