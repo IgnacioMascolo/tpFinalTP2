@@ -43,6 +43,14 @@ class ItemController {
           .send({ success: false, message: "El producto no existe" });
       }
 
+      // Chequeo del stock antes de proceder
+      if (product.stock < cantidad) {
+        return res.status(400).send({
+          success: false,
+          message: `No hay suficiente stock. Stock disponible: ${product.stock}`,
+        });
+      }
+
       let pedido = await Pedido.findOne({
         where: { usuario_id, completo: false },
       });
@@ -73,6 +81,10 @@ class ItemController {
         precioTotal: product.price * cantidad,
       });
 
+      // Reducir el stock después de la creación del ítem
+      product.stock -= cantidad;
+      await product.save();
+
       pedido.precioTotal += data.precioTotal;
       await pedido.save();
 
@@ -91,16 +103,28 @@ class ItemController {
       const item = req.item;
 
       const previousTotal = item.precioTotal;
-      let product;
+      const previousCantidad = item.cantidad;
+
+      let product = await Product.findByPk(item.producto_id);
+
+      // Chequeo del stock antes de proceder
+      if (product.stock + previousCantidad < cantidad) {
+        return res.status(400).send({
+          success: false,
+          message: `No hay suficiente stock. Stock disponible: ${product.stock + previousCantidad}`,
+        });
+      }
 
       if (cantidad) {
         item.cantidad = cantidad;
-
-        product = await Product.findByPk(item.producto_id);
         item.precioTotal = product.price * cantidad;
       }
 
       await item.save();
+
+      // Ajustar el stock después de la edición del ítem
+      product.stock = product.stock + previousCantidad - cantidad;
+      await product.save();
 
       const pedido = await Pedido.findByPk(item.pedido_id);
       const pedidoPreviousTotal = pedido.precioTotal;
@@ -109,7 +133,7 @@ class ItemController {
       await pedido.save();
 
       const pedidoGrande = await PedidoGrande.findByPk(pedido.pedido_grande_id);
-      pedidoGrande.precioTotal += pedido.precioTotal - pedidoPreviousTotal;
+      pedidoGrande.precioTotal += item.precioTotal - previousTotal;
       await pedidoGrande.save();
 
       res.status(200).send({
@@ -125,8 +149,8 @@ class ItemController {
   deleteItem = async (req, res) => {
     try {
       const item = req.item;
-
       const previousItemPrice = item.precioTotal;
+      const previousCantidad = item.cantidad;
 
       const pedido = await Pedido.findByPk(item.pedido_id);
       if (!pedido) {
@@ -135,10 +159,15 @@ class ItemController {
           .send({ success: false, message: "El pedido no existe" });
       }
 
-      pedido.precioTotal -= previousItemPrice;
+      const product = await Product.findByPk(item.producto_id);
 
       await item.destroy();
 
+      // Ajustar el stock después de eliminar el ítem
+      product.stock += previousCantidad;
+      await product.save();
+
+      pedido.precioTotal -= previousItemPrice;
       await pedido.save();
 
       const pedidoGrande = await PedidoGrande.findByPk(pedido.pedido_grande_id);
